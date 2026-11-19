@@ -1,0 +1,11 @@
+[Unit]
+Description=Logitech A50 microphone arm mute
+After=wireplumber.service pipewire-pulse.service
+
+[Service]
+ExecStart=/usr/bin/python3 %h/.local/bin/a50-flip-mute.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,7 @@
+{
+  "uuid": "a50-battery@astro-a50-linux",
+  "name": "Astro A50 Battery",
+  "description": "Show Astro A50 status and controls in the top bar.",
+  "shell-version": ["50"],
+  "version": 14
+}
