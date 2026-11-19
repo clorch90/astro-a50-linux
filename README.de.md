@@ -19,13 +19,16 @@ installiert werden.
 
 ## Getestete Umgebung
 
-- Logitech Astro A50 mit USB-ID `046d:0b1c`
-- Ubuntu 26.04, GNOME 50.1, PipeWire 1.6.2 und WirePlumber 0.5.13
-- Firmware 1.3.24, laut G HUB
+| Hardware / Umgebung | Status |
+| --- | --- |
+| Astro A50 Gen 5, USB-ID `046d:0b1c`, Firmware 1.3.24 | An einem Gerät getestet |
+| Ubuntu 26.04, GNOME 50.1, PipeWire 1.6.2, WirePlumber 0.5.13 | Getestete Umgebung |
+| Andere A50-Generationen, Firmware-Versionen und Linux-Distributionen | Nicht getestet |
 
-Andere A50-Generationen, Firmware-Versionen und Linux-Distributionen wurden
-nicht getestet. Insbesondere können sich Gerätenamen und HID-Ereignisse
-unterscheiden. Die Stummschaltung erfolgt **in PipeWire**, ausgelöst durch den
+Die Firmware-Version stammt aus G HUB. Auf anderen Systemen können sich
+insbesondere Gerätenamen und HID-Ereignisse unterscheiden. Die Tests decken
+nicht jede mögliche Konfiguration oder jeden Gerätezustand ab. Die
+Stummschaltung erfolgt **in PipeWire**, ausgelöst durch den
 Mikrofonarm; sie ist keine unabhängig überprüfte Hardware-Stummschaltung.
 
 **Mikrofon und Privatsphäre:** Prüfe, ob beide Mikrofoneingänge tatsächlich
@@ -273,7 +276,10 @@ install -Dm755 scripts/a50_battery.py "$HOME/.local/bin/a50-battery"
 
 Der Befehl meldet Fehler, wenn das Gerät nicht geöffnet werden kann, nicht
 antwortet oder unbekannte Werte zurückgibt. Er sendet nur beim Aufruf eine
-Abfrage und verändert den Mikrofonarm-Dienst nicht.
+Abfrage und verändert den Mikrofonarm-Dienst nicht. Akku- und andere
+Geräteabfragen verwenden eine gemeinsame, nicht wartende Sperre; läuft bereits
+eine Anfrage, versuche es danach erneut. Die Sperre benötigt `XDG_RUNTIME_DIR`,
+das normalerweise in einer grafischen Benutzersitzung gesetzt ist.
 
 ### Experimentelle Sidetone-Steuerung
 

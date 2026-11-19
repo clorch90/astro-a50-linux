@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import argparse
+import fcntl
 import json
 import os
 import select
 import sys
 import time
+from pathlib import Path
 
 
 DEVICE = "/dev/input/by-id/usb-Logitech_A50-if08-hidraw"
@@ -22,23 +24,29 @@ def decode_battery(report: bytes) -> tuple[int, int, bool]:
 
 
 def read_battery() -> tuple[int, int, bool]:
-    fd = os.open(DEVICE, os.O_RDWR | os.O_NONBLOCK)
-    try:
-        written = os.write(fd, REQUEST)
-        if written != len(REQUEST):
-            raise OSError(f"Incomplete HID request: {written}/{len(REQUEST)} bytes")
-        deadline = time.monotonic() + 3
-        while True:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0 or not select.select([fd], [], [], remaining)[0]:
-                raise TimeoutError("Timed out waiting for an A50 battery response")
-            report = os.read(fd, 64)
-            if not report:
-                raise OSError("A50 HID device disconnected")
-            if report.startswith(RESPONSE_PREFIX):
-                return decode_battery(report)
-    finally:
-        os.close(fd)
+    runtime = os.environ.get("XDG_RUNTIME_DIR")
+    if not runtime:
+        raise RuntimeError("XDG_RUNTIME_DIR is not set")
+    lock_path = Path(runtime) / "a50-hid.lock"
+    with lock_path.open("a") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        fd = os.open(DEVICE, os.O_RDWR | os.O_NONBLOCK)
+        try:
+            written = os.write(fd, REQUEST)
+            if written != len(REQUEST):
+                raise OSError(f"Incomplete HID request: {written}/{len(REQUEST)} bytes")
+            deadline = time.monotonic() + 3
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0 or not select.select([fd], [], [], remaining)[0]:
+                    raise TimeoutError("Timed out waiting for an A50 battery response")
+                report = os.read(fd, 64)
+                if not report:
+                    raise OSError("A50 HID device disconnected")
+                if report.startswith(RESPONSE_PREFIX):
+                    return decode_battery(report)
+        finally:
+            os.close(fd)
 
 
 def main() -> int:
@@ -47,7 +55,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         first, second, charging = read_battery()
-    except (OSError, ValueError) as error:
+    except (OSError, ValueError, RuntimeError) as error:
         print(f"A50 battery read failed: {error}", file=sys.stderr)
         return 1
     level = second if charging else first

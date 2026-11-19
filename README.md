@@ -19,12 +19,15 @@ separately where indicated.
 
 ## Tested environment
 
-- Logitech Astro A50 with USB ID `046d:0b1c`
-- Ubuntu 26.04, GNOME 50.1, PipeWire 1.6.2 and WirePlumber 0.5.13
-- Firmware 1.3.24, as reported by G HUB
+| Hardware / environment | Status |
+| --- | --- |
+| Astro A50 Gen 5, USB ID `046d:0b1c`, firmware 1.3.24 | Tested on one device |
+| Ubuntu 26.04, GNOME 50.1, PipeWire 1.6.2, WirePlumber 0.5.13 | Tested environment |
+| Other A50 generations, firmware versions and Linux distributions | Untested |
 
-Other A50 generations, firmware versions and Linux distributions have not been
-tested. Device names and HID events in particular may differ. Muting is
+Firmware version is as reported by G HUB. Device names and HID events in
+particular may differ on other setups. Testing does not cover every possible
+configuration or device state. Muting is
 performed **in PipeWire** in response to boom-arm movement; it is not
 independently verified hardware muting.
 
@@ -260,7 +263,9 @@ install -Dm755 scripts/a50_battery.py "$HOME/.local/bin/a50-battery"
 
 The command reports errors if the device cannot be opened, does not answer, or
 returns unrecognized values. It sends a request only when run; it does not
-change the boom-arm service.
+change the boom-arm service. Battery and other device requests share a
+non-blocking lock; if another request is in progress, retry after it finishes.
+The lock requires `XDG_RUNTIME_DIR`, normally set in a graphical user session.
 
 ### Experimental sidetone control
 
