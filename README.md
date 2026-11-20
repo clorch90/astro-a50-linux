@@ -49,6 +49,23 @@ On Ubuntu, install the required tools if needed:
 sudo apt install wireplumber pipewire-bin pipewire-pulse pulseaudio-utils python3 python3-gi gir1.2-gtk-4.0 gir1.2-adw-1 pavucontrol usbutils
 ```
 
+### Interactive setup
+
+Run the optional setup as your normal user from the project directory:
+
+```bash
+bash scripts/setup.sh
+```
+
+The script lets you choose the WirePlumber configuration, optional services,
+desktop app and GNOME extension separately. It checks prerequisites but does
+not install packages. It asks before overwriting existing files, starting
+services, restarting WirePlumber or creating the optional system-wide udev
+rule. The udev rule needs `sudo`; reconnect the device afterwards. An existing
+udev rule is never overwritten. Extension updates may require signing out and
+back in. Review and verify microphone muting as described below; setup does not
+test it or apply headset settings. The manual steps remain available below.
+
 Check that the supported device is detected:
 
 ```bash
